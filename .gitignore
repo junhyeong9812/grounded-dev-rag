@@ -1,0 +1,18 @@
+# 세션 상태 (lazy-busy 모드 등) — 추적 안 함
+.claude/
+
+# OS / 에디터
+.DS_Store
+*.swp
+.idea/
+
+# 파이썬 (services/ 코드 들어올 때)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 모델·인덱스 산출물 (대용량 — 추적 안 함)
+*.bin
+*.gguf
+models/
