@@ -1,6 +1,12 @@
 # 세션 상태 (lazy-busy 모드 등) — 추적 안 함
 .claude/
 
+# SSH 키 (오라클 인스턴스 접속 키 등 — 절대 추적 금지)
+ssh/
+
+# nginx 설정 (집 공인IP·내부 포트 노출 — 추적 금지)
+nginx/
+
 # OS / 에디터
 .DS_Store
 *.swp
@@ -16,3 +22,6 @@ venv/
 *.bin
 *.gguf
 models/
+
+# 작업 docs (계획·리뷰로그 등 — 커밋 제외)
+docs/
