@@ -1,9 +1,10 @@
 package xyz.junproject.api.rag
 
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.MediaType
+import org.springframework.http.codec.ServerSentEvent
+import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 
 @RestController
 class RagController(private val rag: RagService) {
@@ -18,5 +19,14 @@ class RagController(private val rag: RagService) {
     fun search(@RequestBody req: AskRequest, http: HttpServletRequest): AskResponse {
         http.setAttribute("usage.query", req.question)
         return rag.ask(req.copy(digest = false))
+    }
+
+    /** 스트리밍 SSE — 토큰 단위로 답변(채팅 UI). event: sources → token… → done. */
+    @GetMapping("/ask/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun askStream(@RequestParam q: String,
+                  @RequestParam(name = "ns", required = false) namespaces: List<String>?,
+                  http: HttpServletRequest): Flux<ServerSentEvent<String>> {
+        http.setAttribute("usage.query", q)
+        return rag.askStream(q, namespaces)
     }
 }

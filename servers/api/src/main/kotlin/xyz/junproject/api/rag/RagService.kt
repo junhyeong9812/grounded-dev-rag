@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
+import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
+import reactor.core.publisher.Flux
 import xyz.junproject.api.config.AppProperties
 
 data class AskRequest(
@@ -95,11 +97,11 @@ class RagService(
         return resp["hits"]["hits"].toList()
     }
 
-    private fun digest(question: String, chunks: List<Chunk>): String {
+    private fun buildPrompt(question: String, chunks: List<Chunk>): String {
         val ctx = chunks.mapIndexed { i, c ->
             "[${i + 1}] (${c.namespace}/${c.domain}) ${c.title} › ${c.section}\n${c.chunk.take(1200)}"
         }.joinToString("\n\n")
-        val prompt = """
+        return """
             너는 한국어 기술 어시스턴트다. 다음 참고 발췌만 근거로 질문에 답하라.
             규칙: ① 반드시 한국어로만 작성하고 중국어·일본어·영어 문장을 섞지 마라(기술 용어 원문은 허용).
             ② 발췌에 없는 내용은 지어내지 말고 모른다고 하라. ③ 근거로 쓴 발췌는 [n]으로 인용하라.
@@ -111,6 +113,21 @@ class RagService(
 
             한국어 답변:
         """.trimIndent()
-        return chatClient.prompt().user(prompt).call().content() ?: ""
+    }
+
+    private fun digest(question: String, chunks: List<Chunk>): String =
+        chatClient.prompt().user(buildPrompt(question, chunks)).call().content() ?: ""
+
+    /** 스트리밍 — sources 이벤트 먼저, 그다음 token 이벤트들, 끝에 done. (www 채팅 UI용) */
+    fun askStream(question: String, namespaces: List<String>?): Flux<ServerSentEvent<String>> {
+        val chunks = hybridSearch(question, namespaces, null, 6)
+        val sourcesJson = mapper.writeValueAsString(chunks.map { it.toSource() })
+        val tokens = chatClient.prompt().user(buildPrompt(question, chunks)).stream().content()
+            .map { ServerSentEvent.builder(it).event("token").build() }
+        return Flux.concat(
+            Flux.just(ServerSentEvent.builder(sourcesJson).event("sources").build()),
+            tokens,
+            Flux.just(ServerSentEvent.builder("done").event("done").build()),
+        )
     }
 }

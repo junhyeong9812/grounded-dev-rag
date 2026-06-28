@@ -9,8 +9,8 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 
-/** 공개(/ask·/intel·/stats·/search)는 오픈, /admin/**는 basic auth.
- *  admin 계정은 application.yml(app.admin-*). 내부 LAN — P8에서 강화. */
+/** 공개(/ask·/intel·/stats·/search)는 오픈, admin 경로는 basic auth.
+ *  admin 계정은 application.yml(app.admin 항목). 내부 LAN — P8에서 강화. */
 @Configuration
 class SecurityConfig(private val props: AppProperties) {
 

@@ -3,7 +3,7 @@ package xyz.junproject.api.content
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-/** admin 전용 — 적재 데이터 조회·검증·수정·삭제. /admin/** 는 basic auth. */
+/** admin 전용 — 적재 데이터 조회·검증·수정·삭제. admin 경로는 basic auth. */
 @RestController
 @RequestMapping("/admin/documents")
 class AdminContentController(

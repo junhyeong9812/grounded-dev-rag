@@ -20,20 +20,23 @@ export default function Ask() {
   const [loading, setLoading] = useState(false);
   const [res, setRes] = useState<Res | null>(null);
 
-  async function ask() {
+  function ask() {
     if (!q.trim()) return;
-    setLoading(true); setRes(null);
-    try {
-      const r = await fetch("/api/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q, namespaces: scope.length ? scope : null, top_k: 6 }),
-      });
-      setRes(await r.json());
-    } catch {
-      setRes({ answer: "오류가 발생했습니다.", sources: [] });
-    }
-    setLoading(false);
+    setLoading(true);
+    setRes({ answer: "", sources: [] });
+    const params = new URLSearchParams();
+    params.set("q", q);
+    scope.forEach((s) => params.append("ns", s));
+    const es = new EventSource(`/api/ask/stream?${params.toString()}`);
+    let answer = "";
+    es.addEventListener("sources", (e: MessageEvent) =>
+      setRes((r) => ({ ...(r ?? {}), sources: JSON.parse(e.data) })));
+    es.addEventListener("token", (e: MessageEvent) => {
+      answer += e.data;
+      setRes((r) => ({ ...(r ?? {}), answer }));
+    });
+    es.addEventListener("done", () => { es.close(); setLoading(false); });
+    es.onerror = () => { es.close(); setLoading(false); };
   }
 
   const toggle = (id: string) =>
