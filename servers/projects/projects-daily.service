@@ -1,0 +1,15 @@
+[Unit]
+Description=Daily projects KB pipeline (claude-code repo analysis → embed + library)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=jun
+Environment=PROJECTS_DOCS=/home/jun/projects-docs
+Environment=TIER_MIN=10000
+Environment=TIER_MAX=100000
+Environment=TIER_PAGES=2
+# GitHub 레이트리밋 완화: Environment=GITHUB_TOKEN=ghp_xxx
+ExecStart=/home/jun/projects/run.sh 8
+TimeoutStartSec=7200

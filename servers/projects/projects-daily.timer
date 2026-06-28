@@ -1,0 +1,9 @@
+[Unit]
+Description=Run projects KB pipeline daily at 04:30 KST
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 Asia/Seoul
+Persistent=true
+
+[Install]
+WantedBy=timers.target
