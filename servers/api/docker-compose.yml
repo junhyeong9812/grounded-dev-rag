@@ -1,0 +1,28 @@
+# .9 Kotlin/Spring API — RAG 오케스트레이션 + 공개 read API + admin(CRUD·모니터링·알림)
+# Python 오케스트레이터(8090) 대체. 배포 전 그것을 정지.
+# 배포: 이 디렉토리를 .9로 동기 후  docker compose up -d --build
+# 시크릿: GMAIL_APP_PASSWORD(Gmail 앱 비번)·ADMIN_PASS 를 .env 또는 환경변수로.
+
+services:
+  api:
+    build: .
+    container_name: rag-api
+    environment:
+      - PG_HOST=192.168.55.9
+      - EMBED_URL=http://192.168.55.158:8080
+      - ES_URL=http://192.168.55.9:9200
+      - LLM_URL=http://192.168.55.164:11434
+      - LLM_MODEL=qwen2.5:7b
+      - GMAIL_USER=your@gmail.com
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD:-}
+      - ALERT_TO=your@example.com
+      - ADMIN_USER=admin
+      - ADMIN_PASS=${ADMIN_PASS:-changeme-admin}
+    ports:
+      - "8090:8090"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8090/actuator/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped

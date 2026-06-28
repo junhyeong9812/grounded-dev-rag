@@ -1,0 +1,43 @@
+server:
+  port: 8090
+
+spring:
+  threads:
+    virtual:
+      enabled: true              # Java 25 가상스레드 (블로킹 HTTP 호출에 적합)
+  datasource:
+    url: jdbc:postgresql://${PG_HOST:192.168.55.9}:5432/intel
+    username: intel
+    password: ${PG_PW:CHANGE_ME}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USER:your@gmail.com}
+    password: ${GMAIL_APP_PASSWORD:}      # Gmail 앱 비밀번호 (사용자 제공)
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+app:
+  embed-url: ${EMBED_URL:http://192.168.55.158:8080}
+  es-url: ${ES_URL:http://192.168.55.9:9200}
+  llm-url: ${LLM_URL:http://192.168.55.164:11434}
+  llm-model: ${LLM_MODEL:qwen2.5:7b}
+  index: kb
+  hosts: ${HOSTS:192.168.55.9,192.168.55.158,192.168.55.164}
+  alert-from: ${GMAIL_USER:your@gmail.com}
+  alert-to: ${ALERT_TO:your@example.com}
+  admin-user: ${ADMIN_USER:admin}
+  admin-pass: ${ADMIN_PASS:changeme-admin}
+  thresholds:
+    cpu: 90.0
+    mem: 90.0
+    disk: 90.0
+    gpu-temp: 85.0
+    gpu-mem: 95.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
