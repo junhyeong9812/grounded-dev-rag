@@ -2,13 +2,19 @@ package xyz.junproject.api.monitoring
 
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.bind.annotation.*
+import xyz.junproject.api.alert.AlertService
 
 @RestController
 @RequestMapping("/admin")
 class AdminMonitoringController(
     private val repo: MetricsRepository,
     private val jdbc: JdbcTemplate,
+    private val alert: AlertService,
 ) {
+    /** 알림 메일 테스트 발송 (SMTP·앱비번 검증). */
+    @PostMapping("/test-alert")
+    fun testAlert() = mapOf("sent" to alert.test())
+
     /** 3호스트 현재 자원 상태 (대시보드). */
     @GetMapping("/metrics")
     fun latest() = mapOf("hosts" to repo.latest())

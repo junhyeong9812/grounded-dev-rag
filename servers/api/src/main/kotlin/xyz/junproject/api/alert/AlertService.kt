@@ -27,6 +27,14 @@ class AlertService(
             sent, "host=$host $metric=$value 임계=$threshold ${if (sent) "메일발송" else if (recent > 0) "쿨다운" else "발송실패"}")
     }
 
+    /** admin 테스트 발송 — SMTP/앱비번 검증용(쿨다운 무시). */
+    fun test(): Boolean {
+        val ok = send("(테스트)", "SMTP 연결 확인", 0.0, 0.0)
+        jdbc.update("INSERT INTO alert_log(host,metric,value,threshold,sent,detail) VALUES('test','TEST',0,0,?,?)",
+            ok, if (ok) "테스트 메일 발송 성공" else "발송 실패(앱 비밀번호 확인)")
+        return ok
+    }
+
     private fun send(host: String, metric: String, value: Double, threshold: Double): Boolean = try {
         val msg = SimpleMailMessage()
         msg.from = props.alertFrom
