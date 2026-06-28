@@ -68,9 +68,10 @@ def digest(question, chunks):
         for i, c in enumerate(chunks)
     )
     prompt = (
-        "다음 참고 발췌만 근거로 질문에 한국어로 답하라. 발췌에 없는 내용은 지어내지 말고 모른다고 하라. "
-        "근거로 쓴 발췌는 [n]으로 인용하라.\n\n"
-        f"질문: {question}\n\n참고 발췌:\n{ctx}\n\n답변:"
+        "너는 한국어 기술 어시스턴트다. 다음 참고 발췌만 근거로 질문에 답하라.\n"
+        "규칙: ① 반드시 한국어로만 작성하고 중국어·일본어·영어 문장을 섞지 마라(기술 용어 원문은 허용). "
+        "② 발췌에 없는 내용은 지어내지 말고 모른다고 하라. ③ 근거로 쓴 발췌는 [n]으로 인용하라.\n\n"
+        f"질문: {question}\n\n참고 발췌:\n{ctx}\n\n한국어 답변:"
     )
     r = requests.post(
         f"{LLM}/v1/chat/completions",
