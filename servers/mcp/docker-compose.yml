@@ -1,0 +1,20 @@
+# .9 MCP 서버 — Claude Code가 지식베이스를 질의(Streamable HTTP), 포트 9000
+# 도메인 라우팅: mcp.junproject.xyz → 집 :9000
+# Claude Code 등록: claude mcp add --transport http junproject-kb https://mcp.junproject.xyz/mcp
+# 배포: 이 디렉토리를 .9로 동기 후  docker compose up -d --build
+
+services:
+  mcp:
+    build: .
+    container_name: rag-mcp
+    environment:
+      - ORCHESTRATOR_URL=http://192.168.55.9:8090
+      - PORT=9000
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/health >/dev/null 2>&1 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
