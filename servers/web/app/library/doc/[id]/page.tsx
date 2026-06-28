@@ -2,6 +2,7 @@ import { API } from "@/lib/api";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import StudyChat from "@/components/StudyChat";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,7 @@ export default async function DocPage({ params }: { params: { id: string } }) {
         {prev ? <Link href={`/library/doc/${prev.id}`} className="doc-nav-btn">◀ {prev.title}</Link> : <span />}
         {next ? <Link href={`/library/doc/${next.id}`} className="doc-nav-btn next">{next.title} ▶</Link> : <span />}
       </div>
+      <StudyChat docId={Number(params.id)} />
     </article>
   );
 }
