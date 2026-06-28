@@ -30,16 +30,24 @@ async function getNeighbors(source: string, id: string) {
   }
 }
 
+// 코드 파일은 마크다운으로 해석하면 깨짐 → 코드 블록(원문 보존)으로 렌더.
+const CODE_EXT = /\.(java|js|ts|tsx|jsx|mjs|py|rs|css|scss|less|html?|json|xml|ya?ml|toml|go|kt|kts|c|cc|cpp|h|hpp|sh|bash|sql|rb|php|swift|vue|svelte)$/i;
+
 export default async function DocPage({ params }: { params: { id: string } }) {
   const doc = await getDoc(params.id);
   if (!doc) return <p className="muted">문서를 찾을 수 없습니다.</p>;
   const { prev, next } = await getNeighbors(doc.source, params.id);
+  const isCode = doc.domain === "code" || CODE_EXT.test(doc.path ?? "");
   return (
     <article className="doc-view">
       <div className="doc-meta muted">{doc.source} · {doc.path}</div>
-      <div className="markdown">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{doc.full_text}</ReactMarkdown>
-      </div>
+      {isCode ? (
+        <pre className="code-block"><code>{doc.full_text}</code></pre>
+      ) : (
+        <div className="markdown">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{doc.full_text}</ReactMarkdown>
+        </div>
+      )}
       <div className="doc-nav">
         {prev ? <Link href={`/library/doc/${prev.id}`} className="doc-nav-btn">◀ {prev.title}</Link> : <span />}
         {next ? <Link href={`/library/doc/${next.id}`} className="doc-nav-btn next">{next.title} ▶</Link> : <span />}

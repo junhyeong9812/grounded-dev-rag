@@ -99,3 +99,6 @@ nav.tabs a.active { background: var(--accent); color: #06101f; border-color: var
 .doc-nav-btn.next { text-align: right; margin-left: auto; }
 .lib-landing { max-width: 700px; padding-top: 10px; }
 .lib-hint { margin-top: 14px; line-height: 2; }
+/* 코드 파일 뷰 — 마크다운 해석 없이 원문 보존(monospace) */
+.code-block { background: #0d1320; border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; overflow-x: auto; font-family: "JetBrains Mono", "Fira Code", ui-monospace, "Consolas", monospace; font-size: 12.5px; line-height: 1.6; color: #cdd5e3; white-space: pre; tab-size: 2; max-width: 100%; }
+.code-block code { font-family: inherit; white-space: pre; background: none; padding: 0; }
