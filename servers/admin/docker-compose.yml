@@ -1,0 +1,17 @@
+# .9 admin — Next.js BFF + 관리 UI, 포트 10000 (basic auth 보호)
+# 도메인 라우팅: admin.junproject.xyz → 집 :10000
+# 배포: 이 디렉토리를 .9로 동기 후  docker compose up -d --build
+# 시크릿: ADMIN_PASS 를 .env 또는 환경변수로(Spring API와 동일 값).
+
+services:
+  admin:
+    build: .
+    container_name: web-admin
+    environment:
+      - ORCHESTRATOR_URL=http://192.168.55.9:8090
+      - ADMIN_USER=admin
+      - ADMIN_PASS=${ADMIN_PASS:-changeme-admin}
+      - PORT=10000
+    ports:
+      - "10000:10000"
+    restart: unless-stopped
