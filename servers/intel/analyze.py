@@ -48,11 +48,14 @@ def analyze_ollama(title, body):
     return r.json()["choices"][0]["message"]["content"]
 
 
+CLAUDE_BIN = os.getenv("CLAUDE_BIN", "/home/jun/.local/bin/claude")
+
+
 def analyze_claude(title, body):
-    # claude-code 헤드리스 (.9에 설치 시). 실패하면 ollama로 폴백.
+    # claude-code 헤드리스 (.9 인증됨). 실패하면 ollama로 폴백.
     try:
-        p = subprocess.run(["claude", "-p", PROMPT.format(title=title, body=body)],
-                           capture_output=True, text=True, timeout=180)
+        p = subprocess.run([CLAUDE_BIN, "-p", PROMPT.format(title=title, body=body)],
+                           capture_output=True, text=True, timeout=240)
         out = p.stdout.strip()
         return out or analyze_ollama(title, body)
     except (FileNotFoundError, subprocess.TimeoutExpired):
