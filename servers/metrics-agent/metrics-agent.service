@@ -1,0 +1,15 @@
+[Unit]
+Description=Host metrics agent (CPU/mem/disk/net/GPU/docker) on :9100
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jun
+Group=docker
+ExecStart=/usr/bin/python3 /home/jun/metrics-agent/agent.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

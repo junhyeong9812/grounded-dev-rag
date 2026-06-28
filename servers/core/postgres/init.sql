@@ -66,3 +66,43 @@ CREATE TABLE IF NOT EXISTS edges (
 CREATE INDEX IF NOT EXISTS idx_edges_from ON edges (from_node);
 CREATE INDEX IF NOT EXISTS idx_edges_to   ON edges (to_node);
 CREATE INDEX IF NOT EXISTS idx_edges_type ON edges (edge_type);
+
+-- ============ admin: 사용량 로그 + 검증 상태 ============
+-- 접근/질문 사용량 (admin 모니터링)
+CREATE TABLE IF NOT EXISTS usage_log (
+    id         BIGSERIAL PRIMARY KEY,
+    ts         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    endpoint   TEXT,
+    method     TEXT,
+    query      TEXT,                       -- 질문 내용(ask)
+    client_ip  TEXT,
+    status     INT,
+    latency_ms INT,
+    meta       JSONB DEFAULT '{}'::jsonb
+);
+CREATE INDEX IF NOT EXISTS idx_usage_ts ON usage_log (ts DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_endpoint ON usage_log (endpoint);
+
+-- documents 검증 상태 (admin 수정·검증)
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS review_status TEXT NOT NULL DEFAULT 'auto';  -- auto|validated|edited|hidden
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+
+-- ============ admin: 서버 자원 모니터링 + 알림 ============
+CREATE TABLE IF NOT EXISTS metrics_sample (
+    id        BIGSERIAL PRIMARY KEY,
+    ts        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    host      TEXT NOT NULL,              -- 192.168.55.9 · .158 · .164
+    cpu_pct   REAL, mem_pct REAL, disk_pct REAL,
+    gpu_util  REAL, gpu_mem_pct REAL, gpu_temp REAL,
+    net_sent  BIGINT, net_recv BIGINT,
+    raw       JSONB DEFAULT '{}'::jsonb
+);
+CREATE INDEX IF NOT EXISTS idx_metrics_host_ts ON metrics_sample (host, ts DESC);
+
+CREATE TABLE IF NOT EXISTS alert_log (
+    id        BIGSERIAL PRIMARY KEY,
+    ts        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    host      TEXT, metric TEXT, value REAL, threshold REAL,
+    sent      BOOLEAN NOT NULL DEFAULT false, detail TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_alert_ts ON alert_log (ts DESC);

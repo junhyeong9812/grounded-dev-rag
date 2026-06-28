@@ -4,6 +4,7 @@
 """
 import os
 import requests
+import psycopg2
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -12,6 +13,8 @@ ES = os.getenv("ES_URL", "http://192.168.55.9:9200")
 LLM = os.getenv("LLM_URL", "http://192.168.55.164:11434")   # Ollama OpenAI 호환
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:7b")
 INDEX = "kb"
+PG = dict(host=os.getenv("PG_HOST", "192.168.55.9"), port=5432,
+          user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 
 app = FastAPI(title="rag-orchestrator")
 
@@ -86,6 +89,35 @@ def digest(question, chunks):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/intel")
+def intel(limit: int = 60):
+    """데일리 인텔 목록 (분석 완료분, 최신순). 웹 BFF가 일자별로 그룹핑."""
+    conn = psycopg2.connect(**PG); cur = conn.cursor()
+    cur.execute("""SELECT source, url, title, analysis_text, score,
+                          to_char(published_at,'YYYY-MM-DD') AS d
+                   FROM documents
+                   WHERE namespace='intel' AND analysis_text IS NOT NULL
+                   ORDER BY published_at DESC LIMIT %s""", (limit,))
+    rows = cur.fetchall(); conn.close()
+    return {"items": [
+        {"source": r[0], "url": r[1], "title": r[2], "analysis": r[3], "score": r[4], "date": r[5]}
+        for r in rows
+    ]}
+
+
+@app.get("/stats")
+def stats():
+    """지식베이스 통계 (웹 대시보드용)."""
+    agg = requests.post(f"{ES}/{INDEX}/_search",
+                        json={"size": 0, "aggs": {"ns": {"terms": {"field": "namespace"}}}}, timeout=15).json()
+    ns = {b["key"]: b["doc_count"] for b in agg["aggregations"]["ns"]["buckets"]}
+    conn = psycopg2.connect(**PG); cur = conn.cursor()
+    cur.execute("SELECT count(*) FROM nodes"); nodes = cur.fetchone()[0]
+    cur.execute("SELECT count(*) FROM edges"); edges = cur.fetchone()[0]
+    conn.close()
+    return {"namespaces": ns, "graph": {"nodes": nodes, "edges": edges}}
 
 
 @app.post("/ask")
