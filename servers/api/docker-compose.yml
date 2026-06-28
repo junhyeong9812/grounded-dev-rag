@@ -18,6 +18,8 @@ services:
       - ALERT_TO=your@example.com
       - ADMIN_USER=admin
       - ADMIN_PASS=${ADMIN_PASS:-changeme-admin}
+      - STUDY_USER=${STUDY_USER:-jun}
+      - STUDY_PASS_HASH=${STUDY_PASS_HASH:-}
     ports:
       - "8090:8090"
     # 헬스체크: temurin-jre엔 curl/wget이 없어 액추에이터를 bash /dev/tcp로 점검
