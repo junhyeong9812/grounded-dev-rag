@@ -9,7 +9,8 @@ from pydantic import BaseModel
 
 EMBED = os.getenv("EMBED_URL", "http://192.168.55.158:8080")
 ES = os.getenv("ES_URL", "http://192.168.55.9:9200")
-LLM = os.getenv("LLM_URL", "http://192.168.55.164:8000")
+LLM = os.getenv("LLM_URL", "http://192.168.55.164:11434")   # Ollama OpenAI 호환
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:7b")
 INDEX = "kb"
 
 app = FastAPI(title="rag-orchestrator")
@@ -73,7 +74,7 @@ def digest(question, chunks):
     )
     r = requests.post(
         f"{LLM}/v1/chat/completions",
-        json={"model": "qwen", "messages": [{"role": "user", "content": prompt}],
+        json={"model": LLM_MODEL, "messages": [{"role": "user", "content": prompt}],
               "temperature": 0.2, "max_tokens": 800},
         timeout=180,
     )

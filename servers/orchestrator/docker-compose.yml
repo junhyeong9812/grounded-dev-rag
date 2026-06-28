@@ -9,7 +9,8 @@ services:
     environment:
       - EMBED_URL=http://192.168.55.158:8080
       - ES_URL=http://192.168.55.9:9200
-      - LLM_URL=http://192.168.55.164:8000
+      - LLM_URL=http://192.168.55.164:11434
+      - LLM_MODEL=qwen2.5:7b
     ports:
       - "8090:8090"
     healthcheck:

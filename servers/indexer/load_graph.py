@@ -23,30 +23,48 @@ def load(graph_dir="graph"):
         edges += d.get("edges", [])
         print(f"  {f.split('/')[-1]}: nodes {len(d.get('nodes',[]))}, edges {len(d.get('edges',[]))}")
 
-    conn = psycopg2.connect(**PG); cur = conn.cursor()
+    VALID = {"derived_from", "influenced", "replaced", "reacted_against", "part_of", "inspired_by"}
+    conn = psycopg2.connect(**PG)
+    conn.autocommit = True                        # 문장별 독립 — 한 실패가 전체를 안 날림
+    cur = conn.cursor()
+
+    def _year(v):
+        try: return int(v)
+        except (TypeError, ValueError): return None
+
+    nerr = 0
     for n in nodes.values():
-        cur.execute(
-            """INSERT INTO nodes(node_id,label,kind,domain,year,summary) VALUES(%s,%s,%s,%s,%s,%s)
-               ON CONFLICT(node_id) DO UPDATE SET label=EXCLUDED.label,kind=EXCLUDED.kind,
-               domain=EXCLUDED.domain,year=EXCLUDED.year,summary=EXCLUDED.summary""",
-            (n["node_id"], n.get("label", n["node_id"]), n.get("kind"), n.get("domain"),
-             n.get("year"), n.get("summary")))
+        try:
+            cur.execute(
+                """INSERT INTO nodes(node_id,label,kind,domain,year,summary) VALUES(%s,%s,%s,%s,%s,%s)
+                   ON CONFLICT(node_id) DO UPDATE SET label=EXCLUDED.label,kind=EXCLUDED.kind,
+                   domain=EXCLUDED.domain,year=EXCLUDED.year,summary=EXCLUDED.summary""",
+                (n["node_id"], n.get("label", n["node_id"]), n.get("kind"), n.get("domain"),
+                 _year(n.get("year")), n.get("summary")))
+        except Exception as ex:
+            nerr += 1
+            if nerr <= 2: print(f"  node err {n.get('node_id')}: {ex}")
+    # 누락 참조 노드 스텁 (FK 보호)
+    for e in edges:
+        for nid in (e.get("from"), e.get("to")):
+            if nid and nid not in nodes:
+                try: cur.execute("INSERT INTO nodes(node_id,label) VALUES(%s,%s) ON CONFLICT DO NOTHING", (nid, nid))
+                except Exception: pass
     skipped = 0
     for e in edges:
         fr, to = e.get("from"), e.get("to")
         if not fr or not to:
-            continue
-        for nid in (fr, to):                      # 누락 노드는 스텁 생성(FK 보호)
-            if nid not in nodes:
-                cur.execute("INSERT INTO nodes(node_id,label) VALUES(%s,%s) ON CONFLICT DO NOTHING", (nid, nid))
+            skipped += 1; continue
+        et = e.get("type", "influenced")
+        if et not in VALID:
+            et = "influenced"
         try:
             cur.execute(
                 """INSERT INTO edges(from_node,to_node,edge_type,reason,domain) VALUES(%s,%s,%s,%s,%s)
                    ON CONFLICT(from_node,to_node,edge_type) DO UPDATE SET reason=EXCLUDED.reason""",
-                (fr, to, e.get("type", "influenced"), e.get("reason"), e.get("domain")))
+                (fr, to, et, e.get("reason"), e.get("domain")))
         except Exception:
-            conn.rollback(); skipped += 1; continue
-    conn.commit()
+            skipped += 1
 
     # 노드 요약 → ES kb 임베딩 (namespace=graph)
     nl = list(nodes.values())
