@@ -3,6 +3,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import StudyChat from "@/components/StudyChat";
+import MarkRead from "@/components/MarkRead";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,7 @@ export default async function DocPage({ params }: { params: { id: string } }) {
         {next ? <Link href={`/library/doc/${next.id}`} className="doc-nav-btn next">{next.title} ▶</Link> : <span />}
       </div>
       <StudyChat docId={Number(params.id)} />
+      <MarkRead id={Number(params.id)} />
     </article>
   );
 }

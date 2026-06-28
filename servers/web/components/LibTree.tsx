@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { getRead } from "@/lib/progress";
 
 // study-site Sidebar 모델: namespace → source → 문서. currentId 자동 강조, 지연 로드.
 const NS_LABEL: Record<string, string> = {
@@ -20,9 +21,14 @@ export default function LibTree() {
   const [openNs, setOpenNs] = useState<Record<string, boolean>>({});
   const [openSrc, setOpenSrc] = useState<Record<string, boolean>>({});
   const [docs, setDocs] = useState<Record<string, Doc[]>>({});
+  const [read, setRead] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch("/api/library/tree").then((r) => r.json()).then((d) => setTree(d.tree ?? []));
+    const sync = () => setRead(getRead());
+    sync();
+    window.addEventListener("doc-read", sync);
+    return () => window.removeEventListener("doc-read", sync);
   }, []);
 
   async function loadDocs(source: string) {
@@ -53,7 +59,9 @@ export default function LibTree() {
                 {openSrc[s.source] &&
                   (docs[s.source] ?? []).map((doc) => (
                     <Link key={doc.id} href={`/library/doc/${doc.id}`}
-                      className={"tree-doc" + (String(doc.id) === currentId ? " active" : "")}>
+                      className={"tree-doc" + (String(doc.id) === currentId ? " active" : "") +
+                        (read.has(String(doc.id)) ? " read" : "")}>
+                      <span className="doc-check">{read.has(String(doc.id)) ? "✓" : "○"}</span>
                       {doc.title}
                     </Link>
                   ))}

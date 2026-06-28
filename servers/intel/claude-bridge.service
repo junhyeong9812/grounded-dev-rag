@@ -1,0 +1,13 @@
+[Unit]
+Description=claude-bridge — 학습 Q&A용 Claude Code 실행 브리지(.9 호스트)
+After=network.target
+
+[Service]
+Type=simple
+User=jun
+ExecStart=/usr/bin/python3 /home/jun/claude_bridge.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

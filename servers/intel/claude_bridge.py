@@ -16,10 +16,24 @@ DISALLOWED = ",".join([
 
 
 class H(BaseHTTPRequestHandler):
+    def _read_body(self):
+        # Spring RestClient는 chunked로 보낼 수 있어 Content-Length만으론 부족.
+        if self.headers.get("Transfer-Encoding", "").lower() == "chunked":
+            data = b""
+            while True:
+                size = int(self.rfile.readline().strip() or b"0", 16)
+                if size == 0:
+                    self.rfile.readline()
+                    break
+                data += self.rfile.read(size)
+                self.rfile.readline()
+            return data
+        n = int(self.headers.get("Content-Length", 0))
+        return self.rfile.read(n)
+
     def do_POST(self):
         try:
-            n = int(self.headers.get("Content-Length", 0))
-            body = json.loads(self.rfile.read(n))
+            body = json.loads(self._read_body() or b"{}")
             prompt = body.get("prompt", "")
             sid = body.get("session_id")
             cmd = [CLAUDE, "-p", "--output-format", "stream-json", "--verbose",
