@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily tech intel crawl + analyze + embed
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=jun
+Environment=ANALYZER=ollama
+# claude-code 설치 후 분석 품질↑: Environment=ANALYZER=claude
+ExecStart=/home/jun/intel/run_daily.sh
+TimeoutStartSec=3600
