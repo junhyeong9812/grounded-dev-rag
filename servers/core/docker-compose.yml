@@ -1,0 +1,52 @@
+# .9 코어 스택 — 벡터DB(ES+nori) + PostgreSQL(원글·dedup 원장)
+# 배포: 이 디렉토리를 .9로 동기 후  docker compose up -d --build
+# 보안: 내부 LAN 개발용으로 xpack.security 비활성(P8에서 강화). 외부 노출 금지.
+
+services:
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+      args:
+        ES_VERSION: "8.15.3"
+    container_name: core-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=basic
+      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"      # .9 LAN — 오케스트레이터가 호출
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: core-pg
+    environment:
+      - POSTGRES_USER=intel
+      - POSTGRES_PASSWORD=CHANGE_ME   # 내부 LAN 개발용 — P8에서 시크릿화
+      - POSTGRES_DB=intel
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intel -d intel"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  es-data:
+  pg-data:

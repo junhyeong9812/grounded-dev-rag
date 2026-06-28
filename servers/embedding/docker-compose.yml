@@ -1,0 +1,32 @@
+# .158 임베딩 서비스 — BGE-M3 (dense+sparse), GPU 사용
+# 배포: 이 디렉토리를 .158로 동기 후  docker compose up -d --build
+# 모델 캐시는 hf-cache 볼륨에 보관(재시작 시 재다운로드 방지).
+
+services:
+  embedding:
+    build: .
+    container_name: embed-bge-m3
+    environment:
+      - EMBED_MODEL=BAAI/bge-m3
+      - HF_HOME=/cache
+    volumes:
+      - hf-cache:/cache
+    ports:
+      - "8080:8080"        # .9 오케스트레이터가 호출
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,json; d=json.load(urllib.request.urlopen('http://localhost:8080/health')); exit(0 if d['loaded'] else 1)\" || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 20            # 첫 기동 시 모델 다운로드(~2.3GB) 여유
+      start_period: 180s
+    restart: unless-stopped
+
+volumes:
+  hf-cache:
