@@ -106,3 +106,17 @@ CREATE TABLE IF NOT EXISTS alert_log (
     sent      BOOLEAN NOT NULL DEFAULT false, detail TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_alert_ts ON alert_log (ts DESC);
+
+-- ============ 자료실(library) — 레퍼런스 원문 전체 보관(브라우즈용). 임베딩(ES)과 격리 ============
+CREATE TABLE IF NOT EXISTS library (
+    id          BIGSERIAL PRIMARY KEY,
+    namespace   TEXT NOT NULL DEFAULT 'ref',   -- ref · dict · projects
+    source      TEXT NOT NULL,                 -- study_docs · valhalla · spring-security · keycloak …
+    domain      TEXT,
+    path        TEXT NOT NULL,                 -- 원본 상대경로 (검색 히트의 doc_path와 연결)
+    title       TEXT,
+    full_text   TEXT NOT NULL,                 -- 원문 전체(마크다운)
+    ingested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (source, path)
+);
+CREATE INDEX IF NOT EXISTS idx_library_source ON library (source);
