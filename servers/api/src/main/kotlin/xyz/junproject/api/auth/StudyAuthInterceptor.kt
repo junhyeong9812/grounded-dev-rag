@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
-/** /study/** 매 요청 세션토큰 필수 검증 — 없거나 무효면 401.
+/** study 경로 매 요청 세션토큰 필수 검증 — 없거나 무효면 401.
  *  학습 Q&A(Claude Code 호출)는 외부 노출 www 뒤에 있으므로 이 게이트가 보안 경계. */
 @Component
 class StudyAuthInterceptor(private val auth: AuthService) : HandlerInterceptor {
