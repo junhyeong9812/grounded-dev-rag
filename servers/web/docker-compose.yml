@@ -1,0 +1,19 @@
+# .9 www (공개) — Next.js BFF + 프론트, 포트 11000
+# 도메인 라우팅: www.junproject.xyz → 집 :11000
+# 배포: 이 디렉토리를 .9로 동기 후  docker compose up -d --build
+
+services:
+  web:
+    build: .
+    container_name: web-www
+    environment:
+      - ORCHESTRATOR_URL=http://192.168.55.9:8090
+      - PORT=11000
+    ports:
+      - "11000:11000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:11000/ >/dev/null 2>&1 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped

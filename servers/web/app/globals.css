@@ -1,0 +1,55 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #141925;
+  --panel2: #1c2333;
+  --border: #2a3346;
+  --text: #e4e8f0;
+  --muted: #8b95a8;
+  --accent: #6ea8fe;
+  --accent2: #7ee0c0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px 80px; }
+header.top { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+header.top h1 { font-size: 22px; letter-spacing: -0.02em; }
+nav.tabs { display: flex; gap: 6px; margin: 20px 0 26px; }
+nav.tabs a {
+  padding: 7px 14px; border-radius: 8px; background: var(--panel);
+  border: 1px solid var(--border); color: var(--text); font-size: 14px;
+}
+nav.tabs a.active { background: var(--accent); color: #06101f; border-color: var(--accent); }
+.date-group { margin-bottom: 28px; }
+.date-group h2 { font-size: 14px; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+.card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 12px;
+}
+.card .meta { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.badge { padding: 2px 8px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--border); font-size: 11px; }
+.card h3 { font-size: 16px; margin-bottom: 8px; letter-spacing: -0.01em; }
+.card .analysis { font-size: 14px; color: #c4ccdc; white-space: pre-wrap; }
+.muted { color: var(--muted); }
+/* Q&A */
+.ask-box { display: flex; gap: 8px; margin-bottom: 18px; }
+.ask-box input {
+  flex: 1; padding: 13px 16px; border-radius: 10px; background: var(--panel);
+  border: 1px solid var(--border); color: var(--text); font-size: 15px;
+}
+.ask-box button {
+  padding: 0 22px; border-radius: 10px; background: var(--accent); color: #06101f;
+  border: 0; font-weight: 700; cursor: pointer; font-size: 15px;
+}
+.ask-box button:disabled { opacity: 0.5; cursor: wait; }
+.answer { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; white-space: pre-wrap; font-size: 15px; }
+.sources { margin-top: 16px; }
+.sources li { font-size: 13px; color: var(--muted); margin-bottom: 4px; list-style: none; }
+.ns-tag { color: var(--accent2); }
+.scope { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.scope label { font-size: 13px; color: var(--muted); display: flex; gap: 4px; align-items: center; }

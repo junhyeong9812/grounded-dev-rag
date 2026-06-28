@@ -5,6 +5,15 @@ spring:
   threads:
     virtual:
       enabled: true              # Java 25 가상스레드 (블로킹 HTTP 호출에 적합)
+  ai:
+    ollama:
+      base-url: ${LLM_URL:http://192.168.55.164:11434}
+      init:
+        pull-model-strategy: never     # 모델은 Ollama에 이미 있음(시작 시 풀 시도 안 함)
+      chat:
+        options:
+          model: ${LLM_MODEL:qwen2.5:7b}
+          temperature: 0.2
   datasource:
     url: jdbc:postgresql://${PG_HOST:192.168.55.9}:5432/intel
     username: intel

@@ -2,6 +2,7 @@ package xyz.junproject.api.rag
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.ai.chat.client.ChatClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -31,10 +32,11 @@ data class AskResponse(val question: String, val answer: String?, val sources: L
 class RagService(
     @Qualifier("embedClient") private val embedClient: RestClient,
     @Qualifier("esClient") private val esClient: RestClient,
-    @Qualifier("llmClient") private val llmClient: RestClient,
+    chatClientBuilder: ChatClient.Builder,            // Spring AI — Ollama 채팅
     private val mapper: ObjectMapper,
     private val props: AppProperties,
 ) {
+    private val chatClient = chatClientBuilder.build()
     fun ask(req: AskRequest): AskResponse {
         val chunks = hybridSearch(req.question, req.namespaces, req.domains, req.topK)
         val answer = if (req.digest) digest(req.question, chunks) else null
@@ -109,11 +111,6 @@ class RagService(
 
             한국어 답변:
         """.trimIndent()
-        val resp = llmClient.post().uri("/v1/chat/completions")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(mapOf("model" to props.llmModel, "temperature" to 0.2, "max_tokens" to 800,
-                "messages" to listOf(mapOf("role" to "user", "content" to prompt))))
-            .retrieve().body(JsonNode::class.java)!!
-        return resp["choices"][0]["message"]["content"].asText()
+        return chatClient.prompt().user(prompt).call().content() ?: ""
     }
 }
