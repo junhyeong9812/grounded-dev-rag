@@ -4,7 +4,7 @@
 -- 문서: corpus/intel/tech/projects 공통. raw + analysis 보관.
 CREATE TABLE IF NOT EXISTS documents (
     doc_id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    namespace     TEXT NOT NULL CHECK (namespace IN ('corpus','intel','tech','projects')),
+    namespace     TEXT NOT NULL CHECK (namespace IN ('corpus','intel','tech','projects','qa','history')),
     source        TEXT,                       -- hackernews · github · geeknews · lobsters · devto · study-practice · corpus
     url           TEXT,                       -- 원문 URL (있으면)
     title         TEXT NOT NULL,
