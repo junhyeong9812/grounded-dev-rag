@@ -1,8 +1,8 @@
 [Unit]
-Description=Run daily tech intel batch at 07:00
+Description=Run daily tech intel batch at 04:00 KST
 
 [Timer]
-OnCalendar=*-*-* 07:00:00
+OnCalendar=*-*-* 04:00:00 Asia/Seoul
 Persistent=true
 
 [Install]
