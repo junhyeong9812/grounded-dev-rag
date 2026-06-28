@@ -1,0 +1,39 @@
+# .164 로컬 LLM — vLLM + Qwen2.5 7B (AWQ 4bit), OpenAI 호환 API
+# 역할: 역할 C(다이제스트) — 검색된 청크를 읽고 질문에 맞춰 정제. 최종 합성은 Claude.
+# 배포: 이 디렉토리를 .164로 동기 후  docker compose up -d
+# 8GB VRAM: AWQ 4bit(~5.5GB) + KV cache. enforce-eager로 메모리 절약.
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: llm-vllm
+    command: >
+      --model Qwen/Qwen2.5-7B-Instruct-AWQ
+      --quantization awq_marlin
+      --served-model-name qwen
+      --max-model-len 8192
+      --gpu-memory-utilization 0.92
+      --enforce-eager
+    environment:
+      - HF_HOME=/cache
+    volumes:
+      - hf-cache:/cache
+    ports:
+      - "8000:8000"        # .9 오케스트레이터가 호출 (OpenAI /v1)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request;urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 30
+      start_period: 300s     # 모델 다운로드(~5.5GB)+로드 여유
+    restart: unless-stopped
+
+volumes:
+  hf-cache:

@@ -1,0 +1,20 @@
+# .9 오케스트레이터 — RAG Q&A API
+# 질문 → .158 임베딩 → ES 하이브리드 → .164 vLLM 다이제스트 → 답변
+# 배포: 이 디렉토리를 .9로 동기 후  docker compose up -d --build
+
+services:
+  orchestrator:
+    build: .
+    container_name: rag-orchestrator
+    environment:
+      - EMBED_URL=http://192.168.55.158:8080
+      - ES_URL=http://192.168.55.9:9200
+      - LLM_URL=http://192.168.55.164:8000
+    ports:
+      - "8090:8090"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:8090/health')\" || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
