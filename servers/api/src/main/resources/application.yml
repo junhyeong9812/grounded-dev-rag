@@ -41,3 +41,6 @@ management:
     web:
       exposure:
         include: health,info,metrics
+  health:
+    mail:
+      enabled: false      # Gmail 앱 비번 미설정 시 health DOWN 방지(알림은 별도 동작)
