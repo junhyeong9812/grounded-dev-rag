@@ -1,5 +1,4 @@
 import { API } from "@/lib/api";
-import Nav from "@/components/Nav";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -16,18 +15,35 @@ async function getDoc(id: string) {
   }
 }
 
+// 같은 소스 안에서 이전/다음 문서(화살표 네비).
+async function getNeighbors(source: string, id: string) {
+  try {
+    const r = await fetch(`${API}/library/docs?source=${encodeURIComponent(source)}`, { cache: "no-store" });
+    const docs = (await r.json()).docs ?? [];
+    const idx = docs.findIndex((d: { id: number }) => String(d.id) === id);
+    return {
+      prev: idx > 0 ? docs[idx - 1] : null,
+      next: idx >= 0 && idx < docs.length - 1 ? docs[idx + 1] : null,
+    };
+  } catch {
+    return { prev: null, next: null };
+  }
+}
+
 export default async function DocPage({ params }: { params: { id: string } }) {
   const doc = await getDoc(params.id);
-  if (!doc) {
-    return (<><Nav active="library" /><p className="muted">문서를 찾을 수 없습니다.</p></>);
-  }
+  if (!doc) return <p className="muted">문서를 찾을 수 없습니다.</p>;
+  const { prev, next } = await getNeighbors(doc.source, params.id);
   return (
-    <>
-      <Nav active="library" />
-      <p><Link href={`/library/${encodeURIComponent(doc.source)}`}>← {doc.source}</Link></p>
-      <article className="markdown">
+    <article className="doc-view">
+      <div className="doc-meta muted">{doc.source} · {doc.path}</div>
+      <div className="markdown">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{doc.full_text}</ReactMarkdown>
-      </article>
-    </>
+      </div>
+      <div className="doc-nav">
+        {prev ? <Link href={`/library/doc/${prev.id}`} className="doc-nav-btn">◀ {prev.title}</Link> : <span />}
+        {next ? <Link href={`/library/doc/${next.id}`} className="doc-nav-btn next">{next.title} ▶</Link> : <span />}
+      </div>
+    </article>
   );
 }

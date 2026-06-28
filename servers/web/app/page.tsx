@@ -1,5 +1,7 @@
 import { API, IntelItem } from "@/lib/api";
 import Nav from "@/components/Nav";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +42,9 @@ export default async function Home() {
                 <a href={it.url} target="_blank" rel="noreferrer">원문 ↗</a>
               </div>
               <h3>{it.title}</h3>
-              <div className="analysis">{it.analysis}</div>
+              <div className="analysis markdown">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{it.analysis}</ReactMarkdown>
+              </div>
             </article>
           ))}
         </div>

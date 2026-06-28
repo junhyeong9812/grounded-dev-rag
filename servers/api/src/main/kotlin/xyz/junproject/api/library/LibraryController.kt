@@ -14,10 +14,21 @@ class LibraryController(private val jdbc: JdbcTemplate) {
     fun sources() = mapOf("sources" to jdbc.queryForList(
         "SELECT source, max(domain) domain, count(*) cnt FROM library GROUP BY source ORDER BY source"))
 
-    /** 한 소스의 문서 목록. */
+    /** 트리: namespace → source(+건수). 좌측 사이드바용(문서는 /docs 로 지연 로드). */
+    @GetMapping("/tree")
+    fun tree(): Map<String, Any> {
+        val rows = jdbc.queryForList(
+            "SELECT namespace, source, count(*) cnt FROM library GROUP BY namespace, source ORDER BY namespace, source")
+        val byNs = LinkedHashMap<String, MutableList<Map<String, Any?>>>()
+        for (r in rows) byNs.getOrPut(r["namespace"] as String) { mutableListOf() }
+            .add(mapOf("source" to r["source"], "cnt" to r["cnt"]))
+        return mapOf("tree" to byNs.map { mapOf("namespace" to it.key, "sources" to it.value) })
+    }
+
+    /** 한 소스의 문서 목록(정렬 — 이전/다음 네비 기준). */
     @GetMapping("/docs")
     fun docs(@RequestParam source: String) = mapOf("docs" to jdbc.queryForList(
-        "SELECT id, title, path FROM library WHERE source=? ORDER BY path", source))
+        "SELECT id, title, path FROM library WHERE source=? ORDER BY path, id", source))
 
     /** 문서 전문. */
     @GetMapping("/{id}")

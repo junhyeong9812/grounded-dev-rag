@@ -70,3 +70,32 @@ nav.tabs a.active { background: var(--accent); color: #06101f; border-color: var
 .markdown pre code { background: none; padding: 0; }
 .markdown table { margin: 12px 0; } .markdown th, .markdown td { border: 1px solid var(--border); }
 .markdown a { color: var(--accent); } .markdown blockquote { border-left: 3px solid var(--accent); padding-left: 14px; color: var(--muted); margin: 10px 0; }
+
+/* 뉴스 카드 안의 분석: 마크다운 렌더(볼드·제목·리스트)하되 패널 배경/테두리는 제거 */
+.card .analysis.markdown { background: none; border: none; border-radius: 0; padding: 0; white-space: normal; }
+.card .analysis.markdown > :first-child { margin-top: 0; }
+.card .analysis.markdown h2 { font-size: 16px; border: none; padding: 0; } .card .analysis.markdown h3 { font-size: 15px; }
+.card .analysis.markdown p, .card .analysis.markdown li { font-size: 14px; color: #c4ccdc; }
+.card .analysis strong { color: #e8edf6; font-weight: 600; }
+
+/* === 자료실 트리 셸 (study-site AppShell 모델) === */
+.lib-shell { display: flex; align-items: flex-start; gap: 0; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); border-top: 1px solid var(--border); }
+.lib-sidebar { width: 280px; flex-shrink: 0; border-right: 1px solid var(--border); max-height: calc(100vh - 110px); overflow-y: auto; position: sticky; top: 0; padding: 10px 0; }
+.lib-content { flex: 1; min-width: 0; padding: 18px 28px 60px; }
+.libtree { font-size: 13.5px; }
+.tree-row { display: flex; align-items: center; gap: 7px; width: 100%; text-align: left; background: none; border: none; color: var(--text); padding: 6px 14px; cursor: pointer; font-size: 13.5px; font-family: inherit; }
+.tree-row:hover { background: var(--panel); }
+.tree-row.sub { padding-left: 26px; color: var(--muted); font-size: 13px; }
+.caret { display: inline-block; transition: transform .15s; font-size: 9px; color: var(--muted); width: 9px; }
+.caret.open { transform: rotate(90deg); }
+.cnt { margin-left: auto; font-size: 11px; color: var(--muted); background: var(--panel2); border-radius: 8px; padding: 0 7px; }
+.tree-doc { display: block; padding: 5px 14px 5px 42px; color: var(--muted); text-decoration: none; font-size: 12.5px; border-left: 2px solid transparent; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-doc:hover { color: var(--text); background: var(--panel); text-decoration: none; }
+.tree-doc.active { color: var(--accent); border-left-color: var(--accent); background: var(--panel2); }
+.doc-view { max-width: 880px; }
+.doc-meta { font-size: 12px; margin-bottom: 14px; }
+.doc-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--border); }
+.doc-nav-btn { color: var(--accent); font-size: 13px; max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-nav-btn.next { text-align: right; margin-left: auto; }
+.lib-landing { max-width: 700px; padding-top: 10px; }
+.lib-hint { margin-top: 14px; line-height: 2; }
