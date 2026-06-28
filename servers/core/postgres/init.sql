@@ -37,3 +37,32 @@ SELECT doc_id, source, url, title, analysis_text, score, published_at, meta
 FROM documents
 WHERE namespace = 'intel' AND analysis_text IS NOT NULL
 ORDER BY published_at DESC;
+
+-- ============ GraphRAG: 변천사 계보 그래프 (노드 + 엣지) ============
+-- 변천사 문서에서 계보 추출 에이전트가 채운다. 노드 summary는 계보 녹여 ES 임베딩.
+CREATE TABLE IF NOT EXISTS nodes (
+    node_id  TEXT PRIMARY KEY,          -- canonical slug (예: postgresql · cap-theorem · raft)
+    label    TEXT NOT NULL,             -- 표시명
+    kind     TEXT,                      -- system · concept · version · language · framework · paper
+    domain   TEXT,                      -- database · python · java · network · web · js
+    year     INT,                       -- 등장/정립 연도
+    summary  TEXT,                      -- 계보 녹인 설명 (임베딩 본문)
+    doc_id   UUID REFERENCES documents(doc_id) ON DELETE SET NULL
+);
+CREATE INDEX IF NOT EXISTS idx_nodes_domain ON nodes (domain);
+
+-- 엣지: 파생/영향/대체/반작용 + 이유. 방향 = from → to.
+CREATE TABLE IF NOT EXISTS edges (
+    edge_id    SERIAL PRIMARY KEY,
+    from_node  TEXT NOT NULL REFERENCES nodes(node_id) ON DELETE CASCADE,
+    to_node    TEXT NOT NULL REFERENCES nodes(node_id) ON DELETE CASCADE,
+    edge_type  TEXT NOT NULL CHECK (edge_type IN
+                 ('derived_from','influenced','replaced','reacted_against','part_of','inspired_by')),
+    reason     TEXT,                     -- "락 경합 → 행 락 필요" 등 파생 이유
+    domain     TEXT,
+    source_doc TEXT,
+    UNIQUE (from_node, to_node, edge_type)
+);
+CREATE INDEX IF NOT EXISTS idx_edges_from ON edges (from_node);
+CREATE INDEX IF NOT EXISTS idx_edges_to   ON edges (to_node);
+CREATE INDEX IF NOT EXISTS idx_edges_type ON edges (edge_type);
