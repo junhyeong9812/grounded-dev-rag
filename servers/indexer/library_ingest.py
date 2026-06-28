@@ -20,7 +20,7 @@ def main(path_glob, source, domain, ns):
     n = 0
     for f in files:
         try:
-            text = open(f, encoding="utf-8", errors="ignore").read()
+            text = open(f, encoding="utf-8", errors="ignore").read().replace("\x00", "")
         except Exception:
             continue
         if len(text) < 30:
