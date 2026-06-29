@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import StudyChat from "@/components/StudyChat";
 import MarkRead from "@/components/MarkRead";
+import DocKeyNav from "@/components/DocKeyNav";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,10 @@ async function getNeighbors(source: string, id: string) {
     return {
       prev: idx > 0 ? docs[idx - 1] : null,
       next: idx >= 0 && idx < docs.length - 1 ? docs[idx + 1] : null,
+      idx, total: docs.length,
     };
   } catch {
-    return { prev: null, next: null };
+    return { prev: null, next: null, idx: -1, total: 0 };
   }
 }
 
@@ -38,7 +40,7 @@ const CODE_EXT = /\.(java|js|ts|tsx|jsx|mjs|py|rs|css|scss|less|html?|json|xml|y
 export default async function DocPage({ params }: { params: { id: string } }) {
   const doc = await getDoc(params.id);
   if (!doc) return <p className="muted">문서를 찾을 수 없습니다.</p>;
-  const { prev, next } = await getNeighbors(doc.source, params.id);
+  const { prev, next, idx, total } = await getNeighbors(doc.source, params.id);
   const isCode = doc.domain === "code" || CODE_EXT.test(doc.path ?? "");
   return (
     <article className="doc-view">
@@ -52,8 +54,10 @@ export default async function DocPage({ params }: { params: { id: string } }) {
       )}
       <div className="doc-nav">
         {prev ? <Link href={`/library/doc/${prev.id}`} className="doc-nav-btn">◀ {prev.title}</Link> : <span />}
+        {idx >= 0 && total > 0 && <span className="doc-count muted">{idx + 1} / {total}</span>}
         {next ? <Link href={`/library/doc/${next.id}`} className="doc-nav-btn next">{next.title} ▶</Link> : <span />}
       </div>
+      <DocKeyNav prevId={prev?.id ?? null} nextId={next?.id ?? null} />
       <StudyChat docId={Number(params.id)} />
       <MarkRead id={Number(params.id)} />
     </article>
