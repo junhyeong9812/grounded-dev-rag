@@ -15,6 +15,8 @@ class ContentService(
     private val props: AppProperties,
 ) {
     fun intel(limit: Int) = repo.intel(limit)
+    fun intelDates() = repo.intelDates()
+    fun intelByDate(date: String) = repo.intelByDate(date)
 
     fun stats(): Map<String, Any> {
         val agg = esClient.post().uri("/${props.index}/_search")

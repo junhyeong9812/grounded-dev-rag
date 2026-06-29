@@ -1,11 +1,16 @@
 "use client";
 import { useState } from "react";
 import Nav from "@/components/Nav";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const NAMESPACES = [
   { id: "corpus", label: "설계 원칙" },
   { id: "history", label: "변천사" },
   { id: "tech", label: "코드 레퍼런스" },
+  { id: "dict", label: "사전" },
+  { id: "projects", label: "유명 프로젝트" },
+  { id: "ref", label: "레퍼런스" },
   { id: "graph", label: "계보" },
   { id: "intel", label: "데일리 뉴스" },
   { id: "qa", label: "개발 질문" },
@@ -64,7 +69,16 @@ export default function Ask() {
       </div>
       {res && (
         <>
-          <div className="answer">{res.answer || "(답변 없음)"}</div>
+          {res.answer ? (
+            <div className="answer markdown">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{res.answer}</ReactMarkdown>
+              {loading && <span className="cursor-blink">▋</span>}
+            </div>
+          ) : loading ? (
+            <div className="answer typing-state">응답 중<span className="dots">…</span></div>
+          ) : (
+            <div className="answer muted">(답변 없음)</div>
+          )}
           {res.sources && res.sources.length > 0 && (
             <ul className="sources">
               {res.sources.map((s, i) => (

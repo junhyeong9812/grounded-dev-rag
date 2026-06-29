@@ -1,54 +1,32 @@
-import { API, IntelItem } from "@/lib/api";
 import Nav from "@/components/Nav";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const LABEL: Record<string, string> = {
-  hackernews: "HN", lobsters: "Lobsters", devto: "Dev.to", geeknews: "GeekNews", github: "GitHub",
-};
+// study-site식 카드 입구 — 섹션 선택 허브.
+const CARDS = [
+  { href: "/news", icon: "📰", title: "데일리 뉴스", desc: "매일 5개 소스 선별·요약. 출처별·일자별로 본다." },
+  { href: "/library", icon: "📚", title: "자료실", desc: "설계 원칙·변천사·레퍼런스·유명 프로젝트·사전·코드." },
+  { href: "/ask", icon: "💬", title: "AI 질의", desc: "지식베이스 기반 질문. 스트리밍 답변." },
+];
 
-async function getIntel(): Promise<IntelItem[]> {
-  try {
-    const r = await fetch(`${API}/intel?limit=80`, { cache: "no-store" });
-    const d = await r.json();
-    return d.items ?? [];
-  } catch {
-    return [];
-  }
-}
-
-export default async function Home() {
-  const items = await getIntel();
-  const byDate: Record<string, IntelItem[]> = {};
-  for (const it of items) (byDate[it.date] ??= []).push(it);
-  const dates = Object.keys(byDate).sort().reverse();
-
+export default function Home() {
   return (
     <>
-      <Nav active="news" />
-      {dates.length === 0 && (
-        <p className="muted">아직 수집된 뉴스가 없습니다. 매일 07:00 배치가 채웁니다.</p>
-      )}
-      {dates.map((date) => (
-        <div className="date-group" key={date}>
-          <h2>{date}</h2>
-          {byDate[date].map((it, i) => (
-            <article className="card" key={i}>
-              <div className="meta">
-                <span className="badge">{LABEL[it.source] ?? it.source}</span>
-                {it.score ? <span>★ {it.score}</span> : null}
-                <a href={it.url} target="_blank" rel="noreferrer">원문 ↗</a>
-              </div>
-              <h3>{it.title}</h3>
-              <div className="analysis markdown">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{it.analysis}</ReactMarkdown>
-              </div>
-            </article>
-          ))}
-        </div>
-      ))}
+      <Nav active="home" />
+      <div className="home-hero">
+        <h2>개발 인텔리전스</h2>
+        <p className="muted">데일리 뉴스 · 자료실 · AI 질의 — 무엇을 볼까요?</p>
+      </div>
+      <div className="home-cards">
+        {CARDS.map((c) => (
+          <Link key={c.href} href={c.href} className="home-card">
+            <span className="home-card-icon">{c.icon}</span>
+            <h3>{c.title}</h3>
+            <p className="muted">{c.desc}</p>
+          </Link>
+        ))}
+      </div>
     </>
   );
 }

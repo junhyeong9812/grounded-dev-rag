@@ -33,6 +33,18 @@ class ContentRepository(private val jdbc: JdbcTemplate) {
         "SELECT $cols FROM documents WHERE namespace='intel' AND analysis_text IS NOT NULL " +
             "AND review_status <> 'hidden' ORDER BY published_at DESC LIMIT ?", mapper, limit)
 
+    /** 뉴스가 있는 날짜 목록(최신순) — 일자별 필터 UI용. */
+    fun intelDates(): List<String> = jdbc.queryForList(
+        "SELECT DISTINCT to_char(published_at,'YYYY-MM-DD') d FROM documents " +
+            "WHERE namespace='intel' AND analysis_text IS NOT NULL AND review_status <> 'hidden' " +
+            "ORDER BY d DESC", String::class.java)
+
+    /** 특정 날짜 뉴스 — 출처·점수순(프론트가 출처별 그룹). */
+    fun intelByDate(date: String): List<Document> = jdbc.query(
+        "SELECT $cols FROM documents WHERE namespace='intel' AND analysis_text IS NOT NULL " +
+            "AND review_status <> 'hidden' AND to_char(published_at,'YYYY-MM-DD')=? " +
+            "ORDER BY source, score DESC NULLS LAST", mapper, date)
+
     fun byId(id: String): Document? = jdbc.query(
         "SELECT $cols FROM documents WHERE doc_id = ?::uuid", mapper, id).firstOrNull()
 
