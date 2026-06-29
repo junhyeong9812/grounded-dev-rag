@@ -6,7 +6,7 @@
 import os, re, json, subprocess, datetime, requests, psycopg2
 
 PG = dict(host=os.getenv("PG_HOST", "192.168.55.9"), port=5432,
-          user="intel", password="CHANGE_ME", dbname="intel")
+          user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 EMBED = os.getenv("EMBED_URL", "http://192.168.55.158:8080")
 LLM = os.getenv("LLM_URL", "http://192.168.55.164:11434")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:7b")

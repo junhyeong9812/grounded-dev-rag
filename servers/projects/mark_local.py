@@ -6,7 +6,7 @@
 import glob, os, psycopg2
 
 PG = dict(host=os.getenv("PG_HOST", "192.168.55.9"), port=5432,
-          user="intel", password="CHANGE_ME", dbname="intel")
+          user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 DOCS = "/home/jun/project/local-llm/projects-docs"
 
 

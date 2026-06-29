@@ -2,6 +2,8 @@
 # 데일리 인텔 배치 — 크롤 → 분석 → 임베딩. systemd timer가 매일 호출.
 set -uo pipefail
 cd "$(dirname "$0")"
+# 환경변수(.env: PG_PW 등) 로드 — gitignore, 같은 디렉토리에 둔다.
+set -a; [ -f ./.env ] && . ./.env; set +a
 LOGDIR="${INTEL_LOG_DIR:-$HOME/intel-logs}"
 mkdir -p "$LOGDIR"
 LOG="$LOGDIR/daily-$(date +%F).log"

@@ -13,9 +13,9 @@ services:
       - ES_URL=http://192.168.55.9:9200
       - LLM_URL=http://192.168.55.164:11434
       - LLM_MODEL=qwen2.5:7b
-      - GMAIL_USER=your@gmail.com
+      - GMAIL_USER=${GMAIL_USER:-}
       - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD:-}
-      - ALERT_TO=your@example.com
+      - ALERT_TO=${ALERT_TO:-}
       - ADMIN_USER=admin
       - ADMIN_PASS=${ADMIN_PASS:-changeme-admin}
       - STUDY_USER=${STUDY_USER:-jun}

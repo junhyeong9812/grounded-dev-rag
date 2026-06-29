@@ -7,7 +7,7 @@ clone은 분석 후 즉시 삭제(디스크 절약). ES 임베딩은 run.sh가 i
 import os, json, shutil, tempfile, subprocess, argparse, requests, psycopg2
 
 PG = dict(host=os.getenv("PG_HOST", "192.168.55.9"), port=5432,
-          user="intel", password="CHANGE_ME", dbname="intel")
+          user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 CLAUDE_BIN = os.getenv("CLAUDE_BIN", "/home/jun/.local/bin/claude")
 DOCS_DIR = os.getenv("PROJECTS_DOCS", os.path.expanduser("~/projects-docs"))
 WORK = os.getenv("PROJECTS_WORK", os.path.expanduser("~/projects-work"))

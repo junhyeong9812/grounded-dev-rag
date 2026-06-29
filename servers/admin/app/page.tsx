@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <p className="muted" style={{ marginBottom: 14 }}>10초마다 자동 갱신 · 임계 초과 시 메일 알림(your@example.com)</p>
+      <p className="muted" style={{ marginBottom: 14 }}>10초마다 자동 갱신 · 임계 초과 시 메일 알림</p>
       {err && <p style={{ color: "var(--bad)" }}>메트릭 조회 실패</p>}
       <div className="grid">
         {hosts.map((h) => {

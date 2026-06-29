@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import xyz.junproject.api.config.AppProperties
 
-/** 임계 초과 시 Gmail SMTP로 발신(your@gmail.com) → 수신(your@example.com).
+/** 임계 초과 시 Gmail SMTP로 발신(GMAIL_USER) → 수신(ALERT_TO).
  *  같은 host+metric은 30분 내 1회만(스팸 방지). 모든 시도는 alert_log에 기록. */
 @Service
 class AlertService(

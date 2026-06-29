@@ -21,7 +21,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GMAIL_USER:your@gmail.com}
+    username: ${GMAIL_USER:}
     password: ${GMAIL_APP_PASSWORD:}      # Gmail 앱 비밀번호 (사용자 제공)
     properties:
       mail.smtp.auth: true
@@ -34,8 +34,8 @@ app:
   llm-model: ${LLM_MODEL:qwen2.5:7b}
   index: kb
   hosts: ${HOSTS:192.168.55.9,192.168.55.158,192.168.55.164}
-  alert-from: ${GMAIL_USER:your@gmail.com}
-  alert-to: ${ALERT_TO:your@example.com}
+  alert-from: ${GMAIL_USER:}
+  alert-to: ${ALERT_TO:}
   admin-user: ${ADMIN_USER:admin}
   admin-pass: ${ADMIN_PASS:changeme-admin}
   thresholds:

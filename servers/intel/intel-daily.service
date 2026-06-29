@@ -8,5 +8,7 @@ Type=oneshot
 User=jun
 Environment=ANALYZER=ollama
 # claude-code 설치 후 분석 품질↑: Environment=ANALYZER=claude
+# DB 비번 등은 .env 로(없어도 기동 — run_daily.sh 가 ./.env 도 로드)
+EnvironmentFile=-/home/jun/intel/.env
 ExecStart=/home/jun/intel/run_daily.sh
 TimeoutStartSec=3600

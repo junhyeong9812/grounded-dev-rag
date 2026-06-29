@@ -8,7 +8,7 @@
 import os, sys, json, argparse, datetime, requests, psycopg2
 
 PG = dict(host=os.getenv("PG_HOST", "192.168.55.9"), port=5432,
-          user="intel", password="CHANGE_ME", dbname="intel")
+          user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 UA = {"User-Agent": "local-llm-projects/1.0"}
 # 콘텐츠/리스트/튜토리얼 repo 제외(코드 프로젝트만)
 EXCLUDE = ["awesome", "free-programming", "roadmap", "interview", "books", "cheatsheet",

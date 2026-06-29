@@ -6,7 +6,7 @@
 import os, json, datetime, requests, psycopg2
 
 PG = dict(host=os.getenv("PG_HOST", "192.168.55.9"), port=5432,
-          user="intel", password="CHANGE_ME", dbname="intel")
+          user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 PER_SOURCE = int(os.getenv("PER_SOURCE", "3"))     # 소스당 상한
 GH_MIN_STARS = int(os.getenv("GH_MIN_STARS", "300"))
 HN_MIN_POINTS = 50

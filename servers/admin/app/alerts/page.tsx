@@ -13,7 +13,7 @@ export default function Alerts() {
   return (
     <>
       <p className="muted" style={{ marginBottom: 14 }}>
-        임계 초과 시 your@gmail.com → your@example.com 메일 발송 (같은 항목 30분 쿨다운)
+        임계 초과 시 설정된 메일로 발송 (같은 항목 30분 쿨다운)
       </p>
       {alerts.length === 0 && <p className="muted">경보 없음 — 모든 자원 정상.</p>}
       {alerts.length > 0 && (

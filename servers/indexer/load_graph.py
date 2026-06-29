@@ -3,12 +3,12 @@
 GraphRAG: 노드 summary(계보 녹임)를 벡터화해 검색이 계보를 인식 + 엣지로 traversal.
 사용: python load_graph.py [graph_dir]
 """
-import sys, glob, json, requests, psycopg2
+import sys, os, glob, json, requests, psycopg2
 
 EMBED = "http://192.168.55.158:8080/embed"
 ES = "http://192.168.55.9:9200"
 INDEX = "kb"
-PG = dict(host="192.168.55.9", port=5432, user="intel", password="CHANGE_ME", dbname="intel")
+PG = dict(host="192.168.55.9", port=5432, user="intel", password=os.getenv("PG_PW", "CHANGE_ME"), dbname="intel")
 
 
 def load(graph_dir="graph"):

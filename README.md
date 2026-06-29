@@ -53,11 +53,28 @@ flowchart TB
     INTEL -->|임베딩| EMB
 
     API -.->|30s 폴링| AGENT9 & AGENT158 & AGENT164
-    API -.->|임계 초과| MAIL["Gmail SMTP<br/>→ your@example.com"]
+    API -.->|임계 초과| MAIL["Gmail SMTP<br/>→ 관리자 메일"]
 ```
 
 **질의 흐름**: 질문 → Spring API → ①BGE-M3로 임베딩 → ②ES 하이브리드 검색(BM25 한국어 + 벡터, 수동 RRF) →
 ③Ollama가 검색 청크를 읽고 한국어로 정제(역할 C) → grounded 답변 + 출처. Claude는 이 API를 호출해 최종 합성한다.
+
+---
+
+## 엣지 / 게이트웨이
+
+집 서버를 직접 인터넷에 노출하지 않기 위해, **Oracle Cloud 프리티어 VPS가 공개 게이트웨이** 역할을 한다.
+도메인(`junproject.xyz`)으로 들어오는 모든 트래픽은 이 프리티어의 nginx가 SSL 종료 + 리버스 프록시로 받아
+집 서버로 전달한다. 외부에 노출되는 공인 엔드포인트는 이 게이트웨이 하나뿐이며, 집 서버의 실제 IP는 가려진다.
+
+```
+사용자 ──HTTPS──▶ Oracle 프리티어 게이트웨이 (nginx: SSL 종료 + 리버스 프록시) ──▶ 집 서버(.9)
+                  www→:11000 · admin→:10000 · mcp→:9000
+```
+
+- **게이트웨이(오라클 프리티어)**: TLS 종료(acme.sh Let's Encrypt 자동 갱신) + 서브도메인별 프록시. 네트워크 단일 진입점이지 인증 게이트는 아니다 — 모든 요청을 집으로 전달한다.
+- **인증·인가는 집의 앱 계층**에서 수행한다 — admin은 BFF basic auth, API는 세션 토큰으로 보호. 공개 `www`는 인증 없는 읽기 전용(뉴스 + AI 질의).
+- 따라서 보호 리소스(admin·관리 API)는 게이트웨이를 통과해 집에 도달한 뒤 앱 계층에서 인증·인가를 거쳐야만 응답된다.
 
 ---
 

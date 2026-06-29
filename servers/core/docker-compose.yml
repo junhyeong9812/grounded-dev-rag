@@ -33,7 +33,7 @@ services:
     container_name: core-pg
     environment:
       - POSTGRES_USER=intel
-      - POSTGRES_PASSWORD=CHANGE_ME   # 내부 LAN 개발용 — P8에서 시크릿화
+      - POSTGRES_PASSWORD=${PG_PW:-CHANGE_ME}   # 실값은 .env(gitignore) — 내부 LAN 전용
       - POSTGRES_DB=intel
     volumes:
       - pg-data:/var/lib/postgresql/data
