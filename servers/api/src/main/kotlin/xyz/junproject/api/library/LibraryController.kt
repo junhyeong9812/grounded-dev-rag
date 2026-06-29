@@ -38,6 +38,17 @@ class LibraryController(private val jdbc: JdbcTemplate) {
         return rows.firstOrNull()?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
 
+    /** 경로로 문서 조회 — AI질의 출처를 모달로. ES 출처 path는 절대경로, library는 상대경로라
+     *  접미사 매칭(? LIKE '%'||path)으로 보정. 정확매칭 우선, 없으면 접미사. */
+    @GetMapping("/by-path")
+    fun byPath(@RequestParam path: String): ResponseEntity<Map<String, Any>> {
+        val rows = jdbc.queryForList(
+            "SELECT id, source, domain, title, path, full_text FROM library " +
+                "WHERE path=? OR ? LIKE '%' || path ORDER BY (path=?) DESC, length(path) DESC LIMIT 1",
+            path, path, path)
+        return rows.firstOrNull()?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
+    }
+
     /** 자료실 전문검색(제목·경로 — 빠른 찾기. 의미검색은 /ask). */
     @GetMapping("/search")
     fun search(@RequestParam q: String) = mapOf("docs" to jdbc.queryForList(
