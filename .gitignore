@@ -30,3 +30,5 @@ graph/
 .env
 *.env
 projects-docs/
+servers/projects/famous_seed.txt
+dict/
