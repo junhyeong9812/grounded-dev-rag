@@ -3,6 +3,7 @@ import { useState } from "react";
 import Nav from "@/components/Nav";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import SourceModal from "@/components/SourceModal";
 
 const NAMESPACES = [
   { id: "corpus", label: "설계 원칙" },
@@ -16,7 +17,7 @@ const NAMESPACES = [
   { id: "qa", label: "개발 질문" },
 ];
 
-type Source = { namespace: string; domain: string | null; title: string; section: string };
+type Source = { namespace: string; domain: string | null; title: string; section: string; path?: string };
 type Res = { answer?: string; sources?: Source[] };
 
 export default function Ask() {
@@ -24,6 +25,7 @@ export default function Ask() {
   const [scope, setScope] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [res, setRes] = useState<Res | null>(null);
+  const [modal, setModal] = useState<{ path: string; title: string } | null>(null);
 
   function ask() {
     if (!q.trim()) return;
@@ -83,13 +85,20 @@ export default function Ask() {
             <ul className="sources">
               {res.sources.map((s, i) => (
                 <li key={i}>
-                  [{i + 1}] <span className="ns-tag">{s.namespace}/{s.domain ?? ""}</span> {s.title} › {s.section}
+                  {s.path ? (
+                    <button className="src-link" onClick={() => setModal({ path: s.path!, title: s.title })}>
+                      [{i + 1}] <span className="ns-tag">{s.namespace}/{s.domain ?? ""}</span> {s.title} › {s.section}
+                    </button>
+                  ) : (
+                    <span>[{i + 1}] <span className="ns-tag">{s.namespace}/{s.domain ?? ""}</span> {s.title} › {s.section}</span>
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </>
       )}
+      {modal && <SourceModal path={modal.path} title={modal.title} onClose={() => setModal(null)} />}
     </>
   );
 }
