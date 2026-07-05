@@ -32,3 +32,5 @@ graph/
 projects-docs/
 servers/projects/famous_seed.txt
 dict/
+servers/web/node_modules/
+servers/web/.next/
