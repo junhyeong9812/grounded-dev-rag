@@ -8,6 +8,8 @@ services:
     container_name: web-www
     environment:
       - ORCHESTRATOR_URL=http://192.168.55.9:8090
+      - READLOG_API_URL=${READLOG_API_URL:-http://192.168.55.9:12000}
+      - READLOG_TOKEN=${READLOG_TOKEN:-}
       - PORT=11000
     ports:
       - "11000:11000"

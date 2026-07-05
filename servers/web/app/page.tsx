@@ -8,6 +8,7 @@ const CARDS = [
   { href: "/news", icon: "📰", title: "데일리 뉴스", desc: "매일 5개 소스 선별·요약. 출처별·일자별로 본다." },
   { href: "/library", icon: "📚", title: "자료실", desc: "설계 원칙·변천사·레퍼런스·유명 프로젝트·사전·코드." },
   { href: "/ask", icon: "💬", title: "AI 질의", desc: "지식베이스 기반 질문. 스트리밍 답변." },
+  { href: "/reading", icon: "📖", title: "독서", desc: "읽은 책의 목차·조각·완성 독후감을 트리로 본다." },
 ];
 
 export default function Home() {
